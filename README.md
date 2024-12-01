@@ -1,86 +1,74 @@
 # DeepLabv3+: Encoder-Decoder with Atrous Separable Convolution in PyTorch
 
----
+## Project Overview
+DeepLabv3+ is a semantic segmentation model based on Atrous Separable Convolution, designed to capture multi-scale features effectively while maintaining an efficient decoding module. The model enhances the segmentation performance by combining deep feature extraction with a powerful decoder, which recovers high spatial resolution for accurate pixel-level classification.
 
-## 目录
-1. [项目简介](#项目简介)
-2. [文件说明](#文件说明)
-3. [使用说明](#使用说明)
-4. [参考资料](#参考资料)
-
----
-
-## 项目简介
-DeepLabv3+ 是一种基于 Atrous Separable Convolution 的语义分割模型，具有强大的多尺度特征提取能力和高效的解码器模块。
-
----
-## 文件说明
+## File Description
 ### 1. `add_modules`
-论文改进模型所添加的模块
+This directory contains the additional modules introduced in the paper to enhance the model's performance, particularly focusing on improving the feature extraction and attention mechanisms.
 
 ### 2. `attention`
-论文改进模型所添加的注意力模块
+Contains modules for implementing attention mechanisms added to the base model to improve the model's ability to focus on important regions of the input image.
 
 ### 3. `logs/`
-存储训练过程中生成的模型权重文件和日志文件，包括最佳权重、最后一轮权重。
+Stores model weights and training logs generated during the training process, including the best weights and the final weights at the end of the training.
 
 ### 4. `model_data/`
-存放预训练模型文件，用于加载权重加速训练或直接用于预测。
+Contains pre-trained model files that can be used for initializing the network to speed up training or directly used for inference.
 
 ### 5. `nets/`
-- **deeplab.py**：DeepLabv3+的整体实现文件，包括模型定义和前向传播逻辑。
-- **mobilenetv2.py** 和 **xception.py**：实现两种主干网络。
-- **aspp.py**：实现ASPP模块，用于多尺度特征提取。
-- **decoder.py**：实现解码器模块，用于恢复空间分辨率。
+- **deeplab.py**: This is the main implementation file for DeepLabv3+, including model definition and forward propagation logic.
+- **mobilenetv2.py** and **xception.py**: These files implement two backbone networks used for feature extraction.
+- **aspp.py**: Implements the Atrous Spatial Pyramid Pooling (ASPP) module, used for multi-scale feature extraction.
+- **decoder.py**: Implements the decoder module responsible for recovering the spatial resolution of the features.
 
 ### 6. `utils/`
-- **metrics.py**：提供语义分割评估指标的实现。
-- **lr_scheduler.py**：实现学习率动态调整策略。
-- **data_loader.py**：定义数据集加载流程和数据增强操作。
-- **visualizer.py**：可视化预测结果和分割图像。
+- **metrics.py**: Provides implementations for evaluation metrics used in semantic segmentation tasks.
+- **lr_scheduler.py**: Implements dynamic learning rate adjustment strategies during training.
+- **data_loader.py**: Defines the dataset loading pipeline and data augmentation operations.
+- **visualizer.py**: Includes methods to visualize predictions and segmentation results.
 
 ### 7. `VOCdevkit/`
-- **VOC2007**：存储训练和测试所需的图片和标签，需符合VOC格式。
-  - **ImageSets/**：存储数据划分的文件（.txt格式）
-  - **JPEGImages/**：存储原始图片文件。
-  - **SegmentationClass/**：存储分割任务的标签文件（PNG格式，每个像素值表示类别）。
+- **VOC2007**: Contains images and labels required for training and testing, following the VOC format.
+  - **ImageSets/**: Contains files that define the dataset splits (in `.txt` format).
+  - **JPEGImages/**: Stores raw image files.
+  - **SegmentationClass/**: Contains the label files for segmentation tasks (in PNG format, with each pixel value corresponding to a class).
 
 ### 8. `train.py`
-用于模型训练，支持多种优化器和学习率调整策略，需配置`num_classes`和`model_path`。
+This file is used for model training and supports multiple optimizers and learning rate strategies. You need to configure parameters such as `num_classes` and `model_path` before running the training.
 
 ### 9. `predict.py`
-用于加载训练好的模型进行预测，支持单张图片预测、文件夹批量预测、FPS测试和视频检测。
+Used for inference with a trained model. It supports predicting a single image, a folder of images, FPS testing, and video detection.
 
 ### 10. `get_miou.py`
-计算分割模型的评估指标，包括mIoU、Precision等，需提前配置类别名称和类别数量。
+This script calculates evaluation metrics for segmentation models, including mIoU (Mean Intersection over Union), Precision, and others. Ensure to configure the class names and class count properly before running.
 
 ### 11. `voc_annotation.py`
-将VOC格式数据集转换为训练所需的格式，生成用于训练的txt文件。
+Converts the VOC dataset into the required format for training, generating the necessary `.txt` files for training.
 
 ### 12. `requirements.txt`
-列出所有依赖的Python库和版本信息，确保环境配置一致。
+Lists all the Python libraries and their versions that are required to ensure a consistent environment configuration for running the project.
 
----
+## Usage Instructions
 
-## 使用说明
+### Training Process
+1. Set up the VOC dataset by placing the images in `VOCdevkit/VOC2007/JPEGImages/` and the labels in `VOCdevkit/VOC2007/SegmentationClass/`.
+2. Run `voc_annotation.py` to generate the corresponding training `.txt` files.
+3. Modify `train.py` to configure parameters such as `num_classes`, `model_path`, and the desired backbone model (e.g., MobileNetV2 or Xception).
+4. Run `train.py` to begin the training process.
 
-### 训练步骤
-1. 配置VOC数据集：将图片存放于`VOCdevkit/VOC2007/JPEGImages/`，标签存放于`VOCdevkit/VOC2007/SegmentationClass/`。
-2. 运行`voc_annotation.py`生成对应的训练txt文件。
-3. 修改`train.py`中的`num_classes`、`model_path`和`backbone`为对应值。
-4. 运行`train.py`开始训练。
+### Inference Process
+1. Modify the `predict.py` script by specifying the correct `model_path`, `num_classes`, and the backbone model to be used.
+2. Run `predict.py` to make predictions by inputting the image path. The script can predict a single image or batch process a folder of images.
 
-### 预测步骤
-1. 修改`predict.py`中的`model_path`、`num_classes`和`backbone`。
-2. 运行`predict.py`，输入图片路径进行预测。
+### Evaluation Process
+1. Modify the `get_miou.py` script to specify the correct `num_classes` and class names.
+2. Run `get_miou.py` to calculate the evaluation metrics, which include mIoU, Precision, and others.
 
-### 评估步骤
-1. 修改`get_miou.py`中的`num_classes`和类别名称。
-2. 运行`get_miou.py`计算评估指标。
-
----
-
-## 参考资料
+## References
 - [Pytorch Segmentation](https://github.com/ggyyzm/pytorch_segmentation)
 - [Keras DeepLabv3+](https://github.com/bonlime/keras-deeplab-v3-plus)
 
+---
+
+This version of the README now contains the full English translation and expanded explanations while maintaining the structure and key information.
